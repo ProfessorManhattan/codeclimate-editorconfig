@@ -6,28 +6,28 @@ checks:
       threshold: 6
 
 plugins:
-  duplication:
-    enabled: true
-    config:
-      languages:
-        javascript:
-          patterns:
-            - test/*.js
+  # duplication:
+  #   enabled: true
+  #   config:
+  #     languages:
+  #       javascript:
+  #         patterns:
+  #           - test/*.js
 
-  eslint:
-    enabled: true
+  # eslint:
+  #   enabled: true
 
-  fixme:
-    enabled: true
+  # fixme:
+  #   enabled: true
 
-  nodesecurity:
-    enabled: true
+  # nodesecurity:
+  #   enabled: true
 
-  markdownlint:
-    enabled: true
+  # markdownlint:
+  #   enabled: true
 
-  shellcheck:
-    enabled: true
+  # shellcheck:
+  #   enabled: true
 
   editorconfig:
     enabled: true

@@ -1,11 +1,11 @@
 .codeclimate.yml
-.editorconfig
 .eslintrc
 .gitignore
 .travis.yml
 /.nyc_output
 /coverage
 /node_modules
-Docerfile
+Dockerfile
 Makefile
 README.md
+test/container-test-config
