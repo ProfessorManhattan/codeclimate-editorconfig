@@ -18,7 +18,10 @@
     "slug": "editorconfig",
     "subgroup": "codeclimate",
     "title": "EditorConfig CodeClimate Engine",
-    "versionCommand": "echo '14.14.14'"
+    "versionCommand": "echo '14.14.14'",
+    "github_id": "R_kgDOHAP1LA",
+    "gitlab_project_id": "32219661",
+    "gitlab_group_id": "14556970"
   },
   "bugs": {
     "email": "help@megabyte.space",
