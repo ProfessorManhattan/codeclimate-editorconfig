@@ -45,7 +45,22 @@ description = "An EditorConfig CodeClimate engine container for GitLab CI"
 documentation = "https://megabyte.space/docs/docker/ci"
 homepage = "https://megabyte.space"
 include = ["docs/CHANGELOG.md", "LICENSE"]
-keywords = ["codeclimate", "editorconfig"]
+keywords = [
+  "ci",
+  "codeclimate",
+  "container",
+  "docker",
+  "dockerfile",
+  "editorconfig",
+  "gitlab",
+  "gitlab-ci",
+  "mblabs",
+  "megabytelabs",
+  "pipeline",
+  "professormanhattan",
+  "virtualization",
+  "washingtondc"
+]
 license = "MIT"
 name = "codeclimate-editorconfig"
 readme = "README.md"

@@ -8,6 +8,9 @@
     "dockerSlimCommand": {
       "codeclimate-editorconfig": "--http-probe=false --exec 'codeclimate-editorconfig || continue' --mount \"./test/basic:/code\" --workdir '/code'"
     },
+    "github_id": "R_kgDOHAP1LA",
+    "gitlab_group_id": "14556970",
+    "gitlab_project_id": "32219661",
     "group": "docker",
     "name": "EditorConfig",
     "overview": "This project is the home of an EditorConfig [CodeClimate](https://codeclimate.com/) engine. EditorConfig is a widely-adopted standard for defining the basic requirements for all files in a project. It defines features like how many spaces a tab should be. It was built to integrate EditorConfig-linter results into the GitLab merge request web UI. This project was adapted from another [codeclimate-editorconfig](https://github.com/ahmadnassri/codeclimate-editorconfig) project.\n\n**NOTE:** Unlike most of our other CodeClimate engine projects, this project only generates a CodeClimate engine and not a standalone engine.",
@@ -18,10 +21,7 @@
     "slug": "editorconfig",
     "subgroup": "codeclimate",
     "title": "EditorConfig CodeClimate Engine",
-    "versionCommand": "echo '14.14.14'",
-    "github_id": "R_kgDOHAP1LA",
-    "gitlab_project_id": "32219661",
-    "gitlab_group_id": "14556970"
+    "versionCommand": "echo '14.14.14'"
   },
   "bugs": {
     "email": "help@megabyte.space",
@@ -207,7 +207,7 @@
   "prettier": "prettier-config-sexy-mode",
   "private": true,
   "publishConfig": {
-    "@megabyte:registry": "https://gitlab.com/api/v4/projects//packages/npm/",
+    "@megabyte:registry": "https://gitlab.com/api/v4/projects/32219661/packages/npm/",
     "access": "public"
   },
   "release": {
