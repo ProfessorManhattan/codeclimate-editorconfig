@@ -1,0 +1,11 @@
+{
+  "name": "editorconfig",
+  "description": "An EditorConfig CodeClimate engine container for GitLab CI",
+  "maintainer": {
+    "name": "Megabyte Labs",
+    "email": "help@megabyte.space"
+  },
+  "languages": ["*"],
+  "version": "1.0.0",
+  "spec_version": "0.3.1"
+}

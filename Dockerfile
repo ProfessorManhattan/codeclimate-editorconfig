@@ -22,8 +22,8 @@ ARG VERSION
 LABEL maintainer="Megabyte Labs <help@megabyte.space>"
 LABEL org.opencontainers.image.authors="Brian Zalewski <brian@megabyte.space>"
 LABEL org.opencontainers.image.created=$BUILD_DATE
-LABEL org.opencontainers.image.description="Code Climate engine for editorconfig"
-LABEL org.opencontainers.image.documentation="https://gitlab.com/megabyte-labs/docker/codeclimate/editorconfig/-/blob/master/README.md"
+LABEL org.opencontainers.image.description="An EditorConfig CodeClimate engine container for GitLab CI"
+LABEL org.opencontainers.image.documentation="https://github.com/ProfessorManhattan/codeclimate-editorconfig/blob/master/README.md"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.revision=$REVISION
 LABEL org.opencontainers.image.source="https://gitlab.com/megabyte-labs/docker/editorconfig/gofmt.git"
