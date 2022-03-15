@@ -3,7 +3,7 @@ const { join } = require('path')
 const { test } = require('tap')
 const { Writable } = require('stream')
 const Ajv = require('ajv')
-const editorconfig = require('..')
+const editorconfig = require('../basic-test')
 
 const schema = require('./schema.json')
 
