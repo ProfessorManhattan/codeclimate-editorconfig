@@ -1,19 +1,20 @@
-FROM node:16-alpine
+FROM node:16-alpine AS codeclimate-editorconfig
 
-WORKDIR /usr/src/app/
+WORKDIR /usr/local/bin
 
-COPY . ./
+COPY local/codeclimate-editorconfig ./codeclimate-editorconfig
+COPY local/app-package.json ./package.json
 
-# install dependencies
-RUN apk add --no-cache --virtual .run-deps grep && npm install --production
+RUN adduser --uid 9000 --gecos "" --disabled-password app \
+    && apk add --no-cache --virtual run-deps grep \
+    && npm install --production
 
-RUN adduser -u 9000 -S -s /bin/false app
 USER app
 
 VOLUME /code
 WORKDIR /code
 
-CMD ["/usr/src/app/bin.js"]
+CMD ["codeclimate-editorconfig"]
 
 ARG BUILD_DATE
 ARG REVISION
@@ -22,8 +23,8 @@ ARG VERSION
 LABEL maintainer="Megabyte Labs <help@megabyte.space>"
 LABEL org.opencontainers.image.authors="Brian Zalewski <brian@megabyte.space>"
 LABEL org.opencontainers.image.created=$BUILD_DATE
-LABEL org.opencontainers.image.description="An EditorConfig CodeClimate engine container for GitLab CI"
-LABEL org.opencontainers.image.documentation="https://github.com/ProfessorManhattan/codeclimate-editorconfig/blob/master/README.md"
+LABEL org.opencontainers.image.description="Code Climate engine for editorconfig"
+LABEL org.opencontainers.image.documentation="https://gitlab.com/megabyte-labs/docker/codeclimate/editorconfig/-/blob/master/README.md"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.revision=$REVISION
 LABEL org.opencontainers.image.source="https://gitlab.com/megabyte-labs/docker/editorconfig/gofmt.git"
