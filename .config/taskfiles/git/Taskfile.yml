@@ -40,11 +40,14 @@ env:
 
 tasks:
   commit:automated:
+    deps:
+      - remotes
     log:
       start: Running automated commit
     cmds:
       - cmd: |
           if [[ "$FULLY_AUTOMATED_TASKS" == 'true' ]]; then
+            task --list > /dev/null || (echo "ERROR: Invalid Taskfiles!" && exit 1)
             git add --all
             HUSKY=0 git commit -m "☁️ Automation" -n
           fi
@@ -268,9 +271,3 @@ tasks:
     deps:
       - :git:gitlab:update
       - :git:github:update
-    cmds:
-      - |
-        if ! git push -u origin master; then
-          git pull origin master --allow-unrelated-histories
-          git push origin -u origin master
-        fi
