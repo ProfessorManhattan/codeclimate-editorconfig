@@ -1,0 +1,11 @@
+schemaVersion: '2.0.0'
+
+metadataTest:
+  labels:
+    - key: 'maintainer'
+      value: 'Megabyte Labs <help@megabyte.space>'
+    - key: 'space.megabyte.type'
+      value: 'linter'
+  entrypoint: ['codeclimate-editorconfig']
+  workdir: '/work'
+  user: root

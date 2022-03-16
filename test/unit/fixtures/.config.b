@@ -1,4 +1,0 @@
-[*]
-indent_size = 2
-indent_style = tab
-trim_trailing_whitespace = true

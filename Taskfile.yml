@@ -23,7 +23,8 @@ vars:
   GITHUB_ORG: ProfessorManhattan
   GITHUB_USER: ProfessorManhattan
   GROUP_EXEC_ASYNC: 'false'
-  IGNORE_FOLDERS: -path './.autodoc/*' -o -path './.cache/*' -o -path './.common*' -o -path './.config/*' -o -path './.git/*'
+  IGNORE_FOLDERS: >
+    -path './.autodoc/*' -o -path './.cache/*' -o -path './.common*' -o -path './.config/*' -o -path './.git/*'
     -o -path './.github/*' -o -path './.gitlab/*' -o -path './.husky/*' -o -path './.modules/*' -o -path './.npm/*'
     -o -path './.pnpm-store/*' -o -path './.shared/*' -o -path './.task/*' -o -path './.venv/*' -o -path './.vscode/*'
     -o -path './build/*' -o -path './dist/*' -o -path './node_modules/*' -o -path './roles/*' -o -name pnpm-lock.yaml
@@ -40,9 +41,7 @@ vars:
   # yamllint disable rule:line-length
   PROJECT_TYPE:
     sh: |
-      # yamllint disable-line rule:line-length
       if type jq &> /dev/null && [ -f package.json ]; then VER="$(jq -r '.blueprint.group' package.json)"; if [ "$VER" == 'null' ]; then echo TYPE="docker"; else TYPE="$VER"; fi; else TYPE="docker"; fi
-      # yamllint disable-line rule:line-length
       if type jq &> /dev/null && [ -f package.json ]; then VER="$(jq -r '.blueprint.subgroup' package.json)"; if [ "$VER" == 'null' ]; then SUBTYPE="codeclimate"; else SUBTYPE="$VER"; fi; else SUBTYPE="codeclimate"; fi
       if [ "$TYPE" == 'common' ] && [ "$SUBTYPE" == 'shared' ]; then
         echo 'shared'
@@ -774,11 +773,15 @@ tasks:
       start: Updating the repository..
       success: Finished updating the repository
     cmds:
-      - task: :install:software:brew
       - |
-        . "$HOME/.profile"
-        task update:prereqs
-        . "$HOME/.profile"
+        if ! type brew > /dev/null; then
+          task install:software:brew
+          . "$HOME/.profile"
+        fi
+        if ! type jq > /dev/null || ! type yq > /dev/null || ! type node > /dev/null || ! type go > /dev/null || ! type poetry > /dev/null; then
+          task update:prereqs
+          . "$HOME/.profile"
+        fi
         task update:init
         task prepare
         task update:finish

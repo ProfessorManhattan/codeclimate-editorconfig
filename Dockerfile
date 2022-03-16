@@ -31,4 +31,14 @@ LABEL org.opencontainers.image.source="https://gitlab.com/megabyte-labs/docker/e
 LABEL org.opencontainers.image.url="https://megabyte.space"
 LABEL org.opencontainers.image.vendor="Megabyte Labs"
 LABEL org.opencontainers.image.version=$VERSION
-LABEL space.megabyte.type="code-climate"
+LABEL space.megabyte.type="codeclimate"
+
+FROM codeclimate-editorconfig AS editorconfig
+
+WORKDIR /work
+
+USER root
+
+ENTRYPOINT ["codeclimate-editorconfig"]
+
+LABEL space.megabyte.type="linter"
