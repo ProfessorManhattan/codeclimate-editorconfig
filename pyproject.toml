@@ -65,7 +65,7 @@ license = "MIT"
 name = "codeclimate-editorconfig"
 readme = "README.md"
 repository = "https://github.com/ProfessorManhattan/codeclimate-editorconfig"
-version = "1.0.0"
+version = "14.14.14"
 
 [tool.poetry.dependencies]
 pip = { version = "^21.3.0", optional = true }
