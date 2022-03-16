@@ -1,33 +1,14 @@
 {
-  "author": "Brian Zalewski <brian@megabyte.space> (https://megabyte.space)",
+  "author": "{{author.name}} <{{author.email}}> ({{link.home}})",
   "blueprint": {
-    "codeClimateLanguages": [
-      "*"
-    ],
-    "description": "An EditorConfig CodeClimate engine container for GitLab CI",
-    "dockerSlimCommand": {
-      "codeclimate-editorconfig": "--http-probe=false --exec 'codeclimate-editorconfig || continue' --mount \"./test/output-test:/code\" --workdir '/code'",
-      "editorconfig": "--http-probe=false --exec 'codeclimate-editorconfig || continue' --mount \"./test/output-test:/work\" --workdir '/work'"
-    },
-    "github_id": "R_kgDOHAP1LA",
-    "gitlab_group_id": "14556970",
-    "gitlab_project_id": "32219661",
-    "group": "docker",
-    "name": "EditorConfig",
-    "overview": "This project is the home of an EditorConfig [CodeClimate](https://codeclimate.com/) engine. EditorConfig is a widely-adopted standard for defining the basic requirements for all files in a project. It defines features like how many spaces a tab should be. It was built to integrate EditorConfig-linter results into the GitLab merge request web UI. This project was adapted from another [codeclimate-editorconfig](https://github.com/ahmadnassri/codeclimate-editorconfig) project.\n\n**NOTE:** In its current state, you cannot lint individual files.",
     "repository": {
-      "github": "https://github.com/ProfessorManhattan/codeclimate-editorconfig",
-      "gitlab": "https://gitlab.com/megabyte-labs/docker/codeclimate/editorconfig"
-    },
-    "slug": "editorconfig",
-    "subgroup": "codeclimate",
-    "title": "EditorConfig CodeClimate Engine",
-    "upstreamSource": "https://github.com/ahmadnassri/codeclimate-editorconfig",
-    "versionCommand": "echo '14.14.14'"
+      "github": "{{#if repository.github}}{{repository.github}}{{else}}https://github.com/{{profile.github}}/{{repository.prefix.github}}{{slug}}{{/if}}",
+      "gitlab": "{{#if repository.gitlab}}{{repository.gitlab}}{{else}}{{repository.gitlabBaseUrl}}/{{group}}/{{subgroup}}/{{slug}}{{/if}}"
+    }
   },
   "bugs": {
-    "email": "help@megabyte.space",
-    "url": "https://gitlab.com/megabyte-labs/docker/codeclimate/editorconfig/-/issues"
+    "email": "{{email.help}}",
+    "url": "{{#if repository.gitlab}}{{repository.gitlab}}{{else}}{{repository.gitlabBaseUrl}}/{{group}}/{{subgroup}}/{{slug}}{{/if}}{{repository.location.issues.gitlab}}"
   },
   "changelog": {
     "displayTypes": [
@@ -40,7 +21,9 @@
     "showAuthor": true
   },
   "commitlint": {
-    "extends": [],
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
     "helpUrl": "https://megabyte.space/docs/contributing/commits"
   },
   "config": {
@@ -49,7 +32,7 @@
     }
   },
   "dependencies": {},
-  "description": "An EditorConfig CodeClimate engine container for GitLab CI",
+  "description": "{{description}}",
   "devDependencies": {
     "@commitlint/config-conventional": "latest",
     "eslint-config-strict-mode": "latest",
@@ -63,32 +46,25 @@
     "node": ">=14.18.0"
   },
   "eslintConfig": {
-    "extends": "eslint-config-strict-mode",
-    "ignorePaths": [
-      "test"
-    ]
+    "extends": "eslint-config-strict-mode"
   },
-  "files": [
-    "bin.js"
-  ],
   "funding": [
     {
       "type": "opencollective",
-      "url": "https://opencollective.com/megabytelabs"
+      "url": "{{profile_link.opencollective}}/{{profile.opencollective}}"
     },
     {
       "type": "patreon",
-      "url": "https://www.patreon.com/ProfessorManhattan"
+      "url": "{{profile_link.patreon}}/{{profile.patreon}}"
     }
   ],
-  "homepage": "https://megabyte.space",
+  "homepage": "{{link.home}}",
   "keywords": [
     "ci",
     "codeclimate",
     "container",
     "docker",
     "dockerfile",
-    "editorconfig",
     "gitlab",
     "gitlab-ci",
     "mblabs",
@@ -98,9 +74,75 @@
     "virtualization",
     "washingtondc"
   ],
-  "license": "MIT",
-  "main": "index.js",
-  "name": "@megabytelabs/codeclimate-editorconfig",
+  "license": "{{license}}",
+  "lint-staged": {
+    "(Brewfile|composer.lock|Gemfile|Gopkg.lock|Pipfile.lock)": [
+      "task fix:prettier --"
+    ],
+    "**/!(logo).(jpg|png)": [
+      "task image:compress --"
+    ],
+    "**/*": [
+      "task lint:any --"
+    ],
+    "**/*!(template).(json|webapp|webmanifest)": [
+      "task fix:json --"
+    ],
+    "**/*.(bash|cfg|cgi|command|css|env|env.*|handlebars|hbs|html|less|fcgi|java|md|mdx|mjml|php|phtml|properties|reg|scss|tmpl|tmux|tool|tpl|zsh)": [
+      "task fix:prettier --"
+    ],
+    "**/*.(cjs|js|jsx|mjs|ts|tsx)": [
+      "task fix:js --",
+      "task lint:js --"
+    ],
+    "**/*.(yml|yaml)": [
+      "task fix:yaml --",
+      "task lint:yaml --"
+    ],
+    "**/*.go": [
+      "task fix:go --",
+      "task lint:go --"
+    ],
+    "**/*.md": [
+      "task fix:markdown --",
+      "task lint:spelling:markdown --"
+    ],
+    "**/*.php": [
+      "task fix:php --",
+      "task lint:php --"
+    ],
+    "**/*.py": [
+      "task fix:python --",
+      "task lint:python --"
+    ],
+    "**/*.sh": [
+      "task fix:prettier --",
+      "task fix:shell --",
+      "task lint:shell --"
+    ],
+    "**/*.toml": [
+      "task fix:toml --",
+      "task fix:prettier --",
+      "task lint:toml --"
+    ],
+    "**/*.xml": [
+      "task fix:xml --",
+      "task lint:xml --"
+    ],
+    "Dockerfile": [
+      "task fix:prettier --",
+      "task lint:docker --"
+    ],
+    "Vagrantfile": [
+      "task fix:prettier --",
+      "task lint:vagrant"
+    ],
+    "logo.png": [
+      "task image:resize -- 200 200",
+      "task image:compress --"
+    ]
+  },
+  "name": "{{#if customPackageName}}{{customPackageName}}{{else}}@{{profile.npmjs_organization}}/{{repository.prefix.github}}{{slug}}{{/if}}",
   "ntl": {
     "descriptions": {
       "build": "Builds the project using the build command specified under scripts in package.json",
@@ -139,8 +181,8 @@
   "prettier": "prettier-config-sexy-mode",
   "private": false,
   "publishConfig": {
-    "@megabyte:registry": "https://gitlab.com/api/v4/projects/32219661/packages/npm/",
-    "access": "public"
+    "@megabyte:registry": "https://gitlab.com/api/v4/projects/{{gitlab_project_id}}/packages/npm/",
+    "access": "{{npm_publish_config_access}}"
   },
   "release": {
     "branches": [
@@ -160,7 +202,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ProfessorManhattan/codeclimate-editorconfig.git"
+    "url": "git+{{#if repository.github}}{{repository.github}}{{else}}https://github.com/{{profile.github}}/{{repository.prefix.github}}{{slug}}{{/if}}.git"
   },
   "scripts": {
     "build": "bash start.sh && task docker:build",
@@ -178,6 +220,6 @@
     "unpack": "bash start.sh && task npm:bundle:unpack",
     "update": "bash start.sh && task update"
   },
-  "type": "commonjs",
-  "version": "14.14.14"
+  "type": "{{npm_type}}",
+  "version": "{{version}}"
 }

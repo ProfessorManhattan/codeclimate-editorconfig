@@ -29,8 +29,8 @@
 </div>
 <br/>
 <div align="center">
-  <a title="Version: 1.0.0" href="https://github.com/ProfessorManhattan/codeclimate-editorconfig" target="_blank">
-    <img alt="Version: 1.0.0" src="https://img.shields.io/badge/version-1.0.0-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAQMAAABJtOi3AAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAACNJREFUCNdjIACY//+BEp9hhM3hAzYQwoBIAqEDYQrCZLwAAGlFKxU1nF9cAAAAAElFTkSuQmCC&cacheSeconds=2592000&style=flat-square" />
+  <a title="Version: 14.14.14" href="https://github.com/ProfessorManhattan/codeclimate-editorconfig" target="_blank">
+    <img alt="Version: 14.14.14" src="https://img.shields.io/badge/version-14.14.14-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAQMAAABJtOi3AAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAACNJREFUCNdjIACY//+BEp9hhM3hAzYQwoBIAqEDYQrCZLwAAGlFKxU1nF9cAAAAAElFTkSuQmCC&cacheSeconds=2592000&style=flat-square" />
   </a>
   <a title="GitLab build status" href="https://gitlab.com/megabyte-labs/docker/codeclimate/editorconfig/-/commits/master" target="_blank">
     <img alt="Build status" src="https://img.shields.io/gitlab/pipeline-status/megabyte-labs/docker/codeclimate/editorconfig?branch=master&label=build&logo=gitlab&logoColor=white&style=flat-square">
@@ -83,7 +83,7 @@
 
 This project is the home of an EditorConfig [CodeClimate](https://codeclimate.com/) engine. EditorConfig is a widely-adopted standard for defining the basic requirements for all files in a project. It defines features like how many spaces a tab should be. It was built to integrate EditorConfig-linter results into the GitLab merge request web UI. This project was adapted from another [codeclimate-editorconfig](https://github.com/ahmadnassri/codeclimate-editorconfig) project.
 
-**NOTE:** Unlike most of our other CodeClimate engine projects, this project only generates a CodeClimate engine and not a standalone engine.
+**NOTE:** In its current state, you cannot lint individual files.
 
 ### Standalone
 
