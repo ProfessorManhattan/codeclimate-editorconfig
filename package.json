@@ -1,5 +1,79 @@
 {
+  "private": false,
+  "name": "@megabytelabs/codeclimate-editorconfig",
+  "version": "14.14.14",
+  "description": "An EditorConfig CodeClimate engine container for GitLab CI",
+  "license": "MIT",
   "author": "Brian Zalewski <brian@megabyte.space> (https://megabyte.space)",
+  "homepage": "https://megabyte.space",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ProfessorManhattan/codeclimate-editorconfig.git"
+  },
+  "bugs": {
+    "email": "help@megabyte.space",
+    "url": "https://gitlab.com/megabyte-labs/docker/codeclimate/editorconfig/-/issues"
+  },
+  "type": "commonjs",
+  "main": "index.js",
+  "files": [
+    "bin.js"
+  ],
+  "scripts": {
+    "build": "bash start.sh && task docker:build",
+    "commit": "bash start.sh && task commit",
+    "fix": "bash start.sh && task fix",
+    "help": "bash start.sh && task --menu",
+    "lint": "bash start.sh && task lint",
+    "preload": "bash start.sh && task preload",
+    "prepare": "bash start.sh && (test -f Taskfile.yml && task npm:prepare) || true",
+    "prepublishOnly": "test -z $SKIP_PREPUB && bash start.sh && task npm:bundle:create || true",
+    "release": "bash start.sh && task publish:semantic-release",
+    "repair": "bash <(curl -sS https://install.doctor/repair)",
+    "start": "test -z $SKIP_NPM_START && bash start.sh || true",
+    "test": "bash start.sh && task docker:test",
+    "unpack": "bash start.sh && task npm:bundle:unpack",
+    "update": "bash start.sh && task update"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/git-cz-emoji"
+    }
+  },
+  "dependencies": {},
+  "optionalDependencies": {},
+  "devDependencies": {
+    "@commitlint/config-conventional": "latest",
+    "eslint-config-strict-mode": "latest",
+    "git-cz-emoji": "latest",
+    "handlebars-helpers": "latest",
+    "prettier-config-sexy-mode": "latest",
+    "semantic-release-config": "latest",
+    "typescript": "^4.5.5"
+  },
+  "keywords": [
+    "ci",
+    "codeclimate",
+    "container",
+    "docker",
+    "dockerfile",
+    "editorconfig",
+    "gitlab",
+    "gitlab-ci",
+    "mblabs",
+    "megabytelabs",
+    "pipeline",
+    "professormanhattan",
+    "virtualization",
+    "washingtondc"
+  ],
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "publishConfig": {
+    "@megabyte:registry": "https://gitlab.com/api/v4/projects/32219661/packages/npm/",
+    "access": "public"
+  },
   "blueprint": {
     "codeClimateLanguages": [
       "*"
@@ -25,10 +99,6 @@
     "upstreamSource": "https://github.com/ahmadnassri/codeclimate-editorconfig",
     "versionCommand": "echo '14.14.14'"
   },
-  "bugs": {
-    "email": "help@megabyte.space",
-    "url": "https://gitlab.com/megabyte-labs/docker/codeclimate/editorconfig/-/issues"
-  },
   "changelog": {
     "displayTypes": [
       "feat",
@@ -43,34 +113,12 @@
     "extends": [],
     "helpUrl": "https://megabyte.space/docs/contributing/commits"
   },
-  "config": {
-    "commitizen": {
-      "path": "node_modules/git-cz-emoji"
-    }
-  },
-  "dependencies": {},
-  "description": "An EditorConfig CodeClimate engine container for GitLab CI",
-  "devDependencies": {
-    "@commitlint/config-conventional": "latest",
-    "eslint-config-strict-mode": "latest",
-    "git-cz-emoji": "latest",
-    "handlebars-helpers": "latest",
-    "prettier-config-sexy-mode": "latest",
-    "semantic-release-config": "latest",
-    "typescript": "^4.5.5"
-  },
-  "engines": {
-    "node": ">=14.18.0"
-  },
   "eslintConfig": {
     "extends": "eslint-config-strict-mode",
-    "ignorePaths": [
+    "ignorePatterns": [
       "test"
     ]
   },
-  "files": [
-    "bin.js"
-  ],
   "funding": [
     {
       "type": "opencollective",
@@ -81,26 +129,6 @@
       "url": "https://www.patreon.com/ProfessorManhattan"
     }
   ],
-  "homepage": "https://megabyte.space",
-  "keywords": [
-    "ci",
-    "codeclimate",
-    "container",
-    "docker",
-    "dockerfile",
-    "editorconfig",
-    "gitlab",
-    "gitlab-ci",
-    "mblabs",
-    "megabytelabs",
-    "pipeline",
-    "professormanhattan",
-    "virtualization",
-    "washingtondc"
-  ],
-  "license": "MIT",
-  "main": "index.js",
-  "name": "@megabytelabs/codeclimate-editorconfig",
   "ntl": {
     "descriptions": {
       "build": "Builds the project using the build command specified under scripts in package.json",
@@ -118,7 +146,6 @@
       "update": "Update and refresh the repository with upstream changes and templated parts"
     }
   },
-  "optionalDependencies": {},
   "pnpm": {
     "allowedVersions": {
       "@typescript-eslint/eslint-plugin": "5",
@@ -137,11 +164,6 @@
     }
   },
   "prettier": "prettier-config-sexy-mode",
-  "private": false,
-  "publishConfig": {
-    "@megabyte:registry": "https://gitlab.com/api/v4/projects/32219661/packages/npm/",
-    "access": "public"
-  },
   "release": {
     "branches": [
       "main",
@@ -157,27 +179,5 @@
       }
     ],
     "extends": "semantic-release-config"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ProfessorManhattan/codeclimate-editorconfig.git"
-  },
-  "scripts": {
-    "build": "bash start.sh && task docker:build",
-    "commit": "bash start.sh && task commit",
-    "fix": "bash start.sh && task fix",
-    "help": "bash start.sh && task --menu",
-    "lint": "bash start.sh && task lint",
-    "preload": "bash start.sh && task preload",
-    "prepare": "bash start.sh && (test -f Taskfile.yml && task npm:prepare) || true",
-    "prepublishOnly": "test -z $SKIP_PREPUB && bash start.sh && task npm:bundle:create || true",
-    "release": "bash start.sh && task publish:semantic-release",
-    "repair": "bash <(curl -sS https://install.doctor/repair)",
-    "start": "test -z $SKIP_NPM_START && bash start.sh || true",
-    "test": "bash start.sh && task docker:test",
-    "unpack": "bash start.sh && task npm:bundle:unpack",
-    "update": "bash start.sh && task update"
-  },
-  "type": "commonjs",
-  "version": "14.14.14"
+  }
 }
