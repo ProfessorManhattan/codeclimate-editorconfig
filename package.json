@@ -79,9 +79,17 @@
       "*"
     ],
     "description": "An EditorConfig CodeClimate engine container for GitLab CI",
+    "dockerLatestSize": {
+      "codeclimate-editorconfig": "",
+      "editorconfig": "40M"
+    },
     "dockerSlimCommand": {
       "codeclimate-editorconfig": "--http-probe=false --exec 'codeclimate-editorconfig || continue' --mount \"./test/output-test:/code\" --workdir '/code'",
       "editorconfig": "--http-probe=false --exec 'codeclimate-editorconfig || continue' --mount \"./test/output-test:/work\" --workdir '/work'"
+    },
+    "dockerSlimSize": {
+      "codeclimate-editorconfig": "",
+      "editorconfig": "31M"
     },
     "github_id": "R_kgDOHAP1LA",
     "gitlab_group_id": "14556970",
@@ -97,15 +105,7 @@
     "subgroup": "codeclimate",
     "title": "EditorConfig CodeClimate Engine",
     "upstreamSource": "https://github.com/ahmadnassri/codeclimate-editorconfig",
-    "versionCommand": "echo '14.14.14'",
-    "dockerSlimSize": {
-      "codeclimate-editorconfig": "",
-      "editorconfig": "31M"
-    },
-    "dockerLatestSize": {
-      "codeclimate-editorconfig": "",
-      "editorconfig": "40M"
-    }
+    "versionCommand": "echo '14.14.14'"
   },
   "changelog": {
     "displayTypes": [
