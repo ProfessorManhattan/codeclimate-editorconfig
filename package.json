@@ -115,7 +115,10 @@
     "extends": "eslint-config-strict-mode",
     "ignorePatterns": [
       "test"
-    ]
+    ],
+    "rules": {
+      "node/no-unsupported-features/es-syntax": "off"
+    }
   },
   "funding": [
     {
