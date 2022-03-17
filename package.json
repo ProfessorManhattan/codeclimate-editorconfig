@@ -97,7 +97,15 @@
     "subgroup": "codeclimate",
     "title": "EditorConfig CodeClimate Engine",
     "upstreamSource": "https://github.com/ahmadnassri/codeclimate-editorconfig",
-    "versionCommand": "echo '14.14.14'"
+    "versionCommand": "echo '14.14.14'",
+    "dockerSlimSize": {
+      "codeclimate-editorconfig": "",
+      "editorconfig": "31M"
+    },
+    "dockerLatestSize": {
+      "codeclimate-editorconfig": "",
+      "editorconfig": "40M"
+    }
   },
   "changelog": {
     "displayTypes": [
