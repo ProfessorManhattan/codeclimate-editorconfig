@@ -1,0 +1,18 @@
+---
+version: '2'
+
+plugins:
+  editorconfig:
+    enabled: true
+
+exclude_patterns:
+  - '.common/'
+  - '.config/'
+  - '.go/'
+  - '.modules/'
+  - '.pnpm-store/'
+  - '.venv/'
+  - 'deprecated/'
+  - 'test-output/'
+  - 'venv/'
+  - '_generated_/'
