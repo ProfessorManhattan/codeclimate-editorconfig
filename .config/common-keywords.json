@@ -1,3 +1,17 @@
 {
-  "keywords": ["installdoc", "installdoctor", "mblabs", "megabytelabs", "professormanhattan"]
+  "keywords": [
+    "ci",
+    "codeclimate",
+    "container",
+    "docker",
+    "dockerfile",
+    "gitlab",
+    "gitlab-ci",
+    "mblabs",
+    "megabytelabs",
+    "pipeline",
+    "professormanhattan",
+    "virtualization",
+    "washingtondc"
+  ]
 }
