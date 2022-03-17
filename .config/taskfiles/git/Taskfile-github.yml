@@ -4,6 +4,7 @@ version: '3'
 tasks:
   create:
     deps:
+      - :ci:commit:config
       - :install:software:gh
       - :install:software:jq
       - :git:remotes
@@ -65,6 +66,7 @@ tasks:
       - ids
       - variables
 
+    run: once
   update:meta:
     deps:
       - :install:software:gh

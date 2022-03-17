@@ -116,6 +116,8 @@ tasks:
       - git filter-branch --force --index-filter 'git rm --cached --ignore-unmatch -r **/node_modules/' --prune-empty -- --all
 
   push:all:
+    deps:
+      - :ci:commit:config
     log:
       error: Encountered error while running `git push all master --force || git push origin master`
       start: Running `git push all master --force || git push origin master`
@@ -262,6 +264,7 @@ tasks:
         fi
 
   update:
+    run: once
     cmds:
       - task: :git:gitlab:create
       - task: :git:github:create
@@ -271,3 +274,4 @@ tasks:
     deps:
       - :git:gitlab:update
       - :git:github:update
+    run: once

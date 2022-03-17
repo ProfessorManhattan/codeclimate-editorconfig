@@ -16,12 +16,14 @@ env:
 
 tasks:
   ci:
+    run: once
     cmds:
       - task: setup
     status:
-      - '[ -z "$CI" ]'
+      - '[ -n "$CI" ]'
 
   commit:
+    run: once
     cmds:
       - task: commit:auto
       - task: commit:manual
@@ -29,6 +31,7 @@ tasks:
       - '[ -z "$AUTO_COMMIT" ]'
 
   commit:auto:
+    run: once
     cmds:
       - task: :commit:quick
       - task: :ci:synchronize
@@ -36,6 +39,7 @@ tasks:
       - '[ "$AUTO_COMMIT_MESSAGE" != "true" ]'
 
   commit:manual:
+    run: once
     cmds:
       - task: :commit:all
       - task: :ci:synchronize
@@ -46,13 +50,13 @@ tasks:
     cmds:
       - task: setup
     status:
-      - '[ -n "$CI" ] && [ -f /.dockerenv ]'
+      - '([ -z "$CI" ] && [ -f /.dockerenv ])'
 
   docker:
     cmds:
       - task: docker:taskfile
     status:
-      - '[ -n "$CI" ] && [ ! -f /.dockerenv ]'
+      - '([ -z "$CI" ] || [ ! -f /.dockerenv ])'
 
   docker:taskfile:
     cmds:
@@ -61,6 +65,7 @@ tasks:
       - '[ ! -f Taskfile.yml ]'
 
   init:
+    run: once
     log:
       error: Error encountered while initializing the update process
       start: Initializing the update process
@@ -71,6 +76,7 @@ tasks:
       - task: :repair
 
   prepare:
+    run: once
     cmds:
       - task: :prepare
     status:
@@ -86,6 +92,7 @@ tasks:
             . "$HOME/.profile" &> /dev/null
             echo "$PATH"
           fi
+    run: once
     log:
       error: Error encountered while installing pre-requisite software
       start: Ensuring pre-requisite software is installed and added to the PATH
@@ -114,6 +121,7 @@ tasks:
       - '[ -n "$GOROOT" ]'
 
   setup:
+    run: once
     cmds:
       - task: :install:software:brew
       - task: prereqs
@@ -132,12 +140,13 @@ tasks:
             sh: cat '{{.ENV_PATH}}'
 
   setup:start:
+    run: once
     cmds:
       - task: setup:start:ci
       - task: setup:start:dev
-      - task: finish
 
   setup:start:ci:
+    run: once
     cmds:
       - task: init
       - task: prepare
@@ -148,12 +157,21 @@ tasks:
       - '[ -z "$CI" ]'
 
   setup:start:dev:
+    run: once
     cmds:
       - task: init
       - task: :common:util:task:tag:deps
         vars:
-          TAG: '{{.REPOSITORY_TYPE}}'
-      - task deps:run:parallel
+          TAG:
+            sh: if [ -n "$SETUP_TAG" ]; then echo "$SETUP_TAG"; else echo "update"; fi
+      - |
+        if ! type yq &> /dev/null; then
+          . "$HOME/.profile" &> /dev/null
+          FIRST_TASK="$(TASK_NAME="deps:run:parallel" yq e '.tasks[env(TASK_NAME)].cmds[0]' Taskfile.yml)"
+          if [ "$FIRST_TASK" != 'null' ]; then
+            task deps:run:parallel
+          fi
+        fi
       - task: prepare
       - task: update
       - task: commit
@@ -161,6 +179,7 @@ tasks:
       - '[ -n "$CI" ]'
 
   update:
+    run: once
     cmds:
       - task: :upstream:{{.PROJECT_TYPE}}
       - task: update:git
@@ -168,6 +187,7 @@ tasks:
       - '[ "$UPDATE_PROJECT" == "true" ]'
 
   update:git:
+    run: once
     cmds:
       - task: :git:update
     status:
