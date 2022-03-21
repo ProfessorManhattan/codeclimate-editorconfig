@@ -81,15 +81,13 @@
     "description": "An EditorConfig CodeClimate engine container for GitLab CI",
     "dockerBaseTag": "editorconfig",
     "dockerLatestSize": {
-      "codeclimate-editorconfig": "",
       "editorconfig": "40M"
     },
     "dockerSlimCommand": {
-      "codeclimate-editorconfig": "--http-probe=false --exec 'codeclimate-editorconfig || continue' --mount \"./test/output-test:/code\" --workdir '/code'",
+      "codeclimate": "--http-probe=false --exec 'codeclimate-editorconfig || continue' --mount \"./test/output-test:/code\" --workdir '/code'",
       "editorconfig": "--http-probe=false --exec 'codeclimate-editorconfig || continue' --mount \"./test/output-test:/work\" --workdir '/work'"
     },
     "dockerSlimSize": {
-      "codeclimate-editorconfig": "",
       "editorconfig": "31M"
     },
     "github_id": "R_kgDOHAP1LA",

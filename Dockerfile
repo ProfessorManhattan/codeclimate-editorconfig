@@ -1,4 +1,4 @@
-FROM node:16-alpine AS codeclimate-editorconfig
+FROM node:16-alpine AS codeclimate
 
 WORKDIR /usr/local/bin
 
@@ -33,7 +33,7 @@ LABEL org.opencontainers.image.vendor="Megabyte Labs"
 LABEL org.opencontainers.image.version=$VERSION
 LABEL space.megabyte.type="codeclimate"
 
-FROM codeclimate-editorconfig AS editorconfig
+FROM codeclimate AS editorconfig
 
 WORKDIR /work
 
