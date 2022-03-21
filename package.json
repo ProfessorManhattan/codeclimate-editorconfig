@@ -79,6 +79,7 @@
       "*"
     ],
     "description": "An EditorConfig CodeClimate engine container for GitLab CI",
+    "dockerBaseTag": "editorconfig",
     "dockerLatestSize": {
       "codeclimate-editorconfig": "",
       "editorconfig": "40M"
