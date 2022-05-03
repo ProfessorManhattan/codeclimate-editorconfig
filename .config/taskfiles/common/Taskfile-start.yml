@@ -10,7 +10,6 @@ vars:
     sh: mktemp
 
 env:
-  AUTO_COMMIT_MESSAGE: 'false'
   PREPARE_PROJECT: 'true'
   UPDATE_GIT_REPOS: 'true'
 
@@ -25,26 +24,9 @@ tasks:
   commit:
     run: once
     cmds:
-      - task: commit:auto
-      - task: commit:manual
-    status:
-      - '[ -z "$AUTO_COMMIT" ]'
-
-  commit:auto:
-    run: once
-    cmds:
-      - task: :commit:quick
+      - task: :git:commit:automated
+      - task: :git:push:all
       - task: :ci:synchronize
-    status:
-      - '[ "$AUTO_COMMIT_MESSAGE" != "true" ]'
-
-  commit:manual:
-    run: once
-    cmds:
-      - task: :commit:all
-      - task: :ci:synchronize
-    status:
-      - '[ "$AUTO_COMMIT_MESSAGE" == "true" ]'
 
   dev:
     cmds:
@@ -52,11 +34,19 @@ tasks:
     status:
       - '([ -z "$CI" ] && [ -f /.dockerenv ])'
 
+  devcontainer:
+    cmds:
+      - task: :install:modules:local
+      - task: :install:python:requirements:poetry
+      - task: :git:remotes
+    status:
+      - '[ ! -f /.devcontainer ]'
+
   docker:
     cmds:
       - task: docker:taskfile
     status:
-      - '([ -z "$CI" ] || [ ! -f /.dockerenv ])'
+      - '[ "{{.DOCKER_BUILDING}}" != "true" ]'
 
   docker:taskfile:
     cmds:
@@ -80,7 +70,7 @@ tasks:
     cmds:
       - task: :prepare
     status:
-      - '[ "$PREPARE_PROJECT" != "true" ]'
+      - '[ "$PREPARE_PROJECT" != "true" ] || [ -f /.devcontainer ]'
 
   prereqs:
     env:
@@ -160,21 +150,10 @@ tasks:
     run: once
     cmds:
       - task: init
-      - task: :common:util:task:tag:deps
-        vars:
-          TAG:
-            sh: if [ -n "$SETUP_TAG" ]; then echo "$SETUP_TAG"; else echo "update"; fi
-      - |
-        if ! type yq &> /dev/null; then
-          . "$HOME/.profile" &> /dev/null
-          FIRST_TASK="$(TASK_NAME="deps:run:parallel" yq e '.tasks[env(TASK_NAME)].cmds[0]' Taskfile.yml)"
-          if [ "$FIRST_TASK" != 'null' ]; then
-            task deps:run:parallel
-          fi
-        fi
       - task: prepare
       - task: update
       - task: commit
+      - task: devcontainer
     status:
       - '[ -n "$CI" ]'
 
@@ -184,12 +163,12 @@ tasks:
       - task: :upstream:{{.PROJECT_TYPE}}
       - task: update:git
     status:
-      - '[ "$UPDATE_PROJECT" == "true" ]'
+      - '[ "$UPDATE_PROJECT" == "true" ] || [ -f /.devcontainer ]'
 
   update:git:
     run: once
     cmds:
       - task: :git:update
     status:
-      - '[ -n "$CI" ]'
-      - '[ "$UPDATE_GIT_REPOS" == "false" ]'
+      - '[ -n "$CI" ] || [ "{{.DOCKER_BUILDING}}" == "true" ]'
+      - '[ "$UPDATE_GIT_REPOS" == "false" ] || [ "{{.DOCKER_BUILDING}}" == "true" ]]'

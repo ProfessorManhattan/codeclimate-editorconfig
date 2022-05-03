@@ -2,9 +2,31 @@
 version: '3'
 
 vars:
+  DIND_MOUNT_MAPPING: /var/run/docker.sock:/var/run/docker.sock
+  DOCKER_BASE_TAG:
+    sh: |
+      if [ -f Dockerfile ] && type jq &> /dev/null; then
+        BASE_TAG="$(jq -r '.blueprint.dockerBaseTag' package.json)"
+        if [ "$BASE_TAG" != 'null' ]; then
+          echo "$BASE_TAG"
+        else
+          if grep -m1 "^FROM .* AS .*" Dockerfile > /dev/null; then
+            FIRST_LINE=$(head -n 1 Dockerfile | sed 's/.* AS \(.*\)/\1/')
+            if [ -n "$FIRST_LINE" ]; then
+              echo "$FIRST_LINE"
+            else
+              echo ""
+            fi
+          else
+            echo ""
+          fi
+        fi
+      fi
   DOCKER_IMAGE:
     sh: |
-      echo "{{.DOCKERHUB_PROFILE}}/{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}$(jq -r '.blueprint.slug' package.json){{end}}"
+      if type jq &> /dev/null; then
+        echo "{{.DOCKERHUB_PROFILE}}/$(jq -r '.blueprint.slug' package.json)"
+      fi
 
 tasks:
   build:
@@ -31,14 +53,22 @@ tasks:
       - |
         if [ -d ./test/structure ]; then
           TESTS="$(find ./test/structure -mindepth 1 -maxdepth 1 -type f -name "*.yml")"
-          if echo "$TESTS" | grep '.yml'; then
+          if echo "$TESTS" | grep '.yml' > /dev/null; then
             for TEST_FILE in $TESTS; do
               TARGET="$(echo "$TEST_FILE" | sed 's/.*\/\([^\/]*\).yml$/\1/')"
-              if [ "$(jq --arg slug "$TARGET" '.blueprint.dockerSlimCommand[$slug]' package.json)" != 'null' ]; then
-                task docker:build:slim -- "$TARGET"
+              if [ "$(jq --arg slug "$TARGET" '.blueprint.dockerSlimCommand | type' package.json)" == 'object' ]; then
+                if [ "$(jq --arg slug "$TARGET" '.blueprint.dockerSlimCommand[$slug]' package.json)" != 'null' ]; then
+                  task docker:build:slim -- "$TARGET"
+                else
+                  .config/log warn 'The `.blueprint.dockerSlimCommand` is missing - skipping slim build and building just a regular image'
+                  task docker:build:fat -- "$TARGET"
+                fi
               else
-                .config/log warn 'The `.blueprint.dockerSlimCommand` is missing - skipping slim build and building just a regular image'
-                task docker:build:fat -- "$TARGET"
+                if [ "$(jq --arg slug "$TARGET" '.blueprint.dockerSlimCommand' package.json)" != 'null' ]; then
+                  task docker:build:slim -- "$TARGET"
+                else
+                  task docker:build:fat -- "$TARGET"
+                fi
               fi
             done
           else
@@ -74,6 +104,8 @@ tasks:
   prepare:
     cmds:
       - task: build
+    status:
+      - '[ ! -f Dockerfile ]'
 
   publish:
     desc: Publish the Docker images (using `Docker*.test.yml` files)
@@ -109,13 +141,15 @@ tasks:
           task docker:publish:images
         fi
       - task: pushrm
+    status:
+      - '[ ! -f Dockerfile ]'
 
   publish:image:
     vars:
       SLIM_ENABLED:
         sh: |
-          OBJ="$(jq -r '.blueprint.dockerSlimCommand[0]' package.json)"
-          if [ "$OBJ" == 'null' ]; then
+          TYPE="$(jq -r '.blueprint.dockerSlimCommand | type' package.json)"
+          if [ "$TYPE" != 'object' ]; then
             jq -r '.blueprint.dockerSlimCommand' package.json | sed 's/null/false/'
           else
             TARGET="{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.TARGET}}{{end}}"
@@ -129,14 +163,16 @@ tasks:
       - docker tag {{.DOCKER_IMAGE}}:{{.SOURCE_TAG}} {{.DOCKER_IMAGE}}:{{.TARGET_TAG}}
       - docker push {{.DOCKER_IMAGE}}:{{.TARGET_TAG}}
     status:
-      - '[[ "{{.SOURCE_TAG}}" == "slim" ]]'
+      - '[[ "{{.SOURCE_TAG}}" == "slim"* ]]'
       - '[[ "{{.SLIM_ENABLED}}" == "false" ]]'
 
   publish:images:
     vars:
       MAJOR_VERSION:
         sh: jq -r '.version' package.json | sed 's/\..*\..*$//'
-      TAG_POST: '{{if (contains "codeclimate" .CLI_ARGS)}}-codeclimate{{end}}'
+      MINOR_VERSION:
+        sh: jq -r '.version' package.json | sed 's/^[^\.]*\.//' | sed 's/\.[^\.]*$//'
+      TAG_POST: '{{if ne .DOCKER_BASE_TAG .CLI_ARGS}}-{{if (contains "codeclimate" .CLI_ARGS)}}codeclimate{{else}}{{.CLI_ARGS}}{{end}}{{end}}'
       TARGET: '{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.TARGET}}{{end}}'
       VERSION:
         sh: jq -r ".version" package.json
@@ -148,11 +184,15 @@ tasks:
       - task: publish:image
         vars:
           SOURCE_TAG: latest{{.TAG_POST}}
-          TARGET_TAG: '{{.VERSION}}{{.TAG_POST}}'
+          TARGET_TAG: 'v{{.VERSION}}{{.TAG_POST}}'
       - task: publish:image
         vars:
           SOURCE_TAG: latest{{.TAG_POST}}
-          TARGET_TAG: '{{.MAJOR_VERSION}}-latest{{.TAG_POST}}'
+          TARGET_TAG: 'v{{.MAJOR_VERSION}}{{.TAG_POST}}'
+      - task: publish:image
+        vars:
+          SOURCE_TAG: latest{{.TAG_POST}}
+          TARGET_TAG: v{{.MAJOR_VERSION}}.{{.MINOR_VERSION}}{{.TAG_POST}}
       - task: publish:image
         vars:
           SOURCE_TAG: latest{{.TAG_POST}}
@@ -160,11 +200,15 @@ tasks:
       - task: publish:image
         vars:
           SOURCE_TAG: slim{{.TAG_POST}}
-          TARGET_TAG: '{{.VERSION}}-slim{{.TAG_POST}}'
+          TARGET_TAG: 'v{{.VERSION}}-slim{{.TAG_POST}}'
       - task: publish:image
         vars:
           SOURCE_TAG: slim{{.TAG_POST}}
-          TARGET_TAG: '{{.MAJOR_VERSION}}-slim{{.TAG_POST}}'
+          TARGET_TAG: 'v{{.MAJOR_VERSION}}-slim{{.TAG_POST}}'
+      - task: publish:image
+        vars:
+          SOURCE_TAG: slim{{.TAG_POST}}
+          TARGET_TAG: v{{.MAJOR_VERSION}}.{{.MINOR_VERSION}}-slim{{.TAG_POST}}
       - task: publish:image
         vars:
           SOURCE_TAG: slim{{.TAG_POST}}

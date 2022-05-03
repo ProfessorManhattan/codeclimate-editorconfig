@@ -11,6 +11,10 @@
 
 set -eo pipefail
 
+# @description Initialize variables
+DELAYED_CI_SYNC=""
+ENSURED_TASKFILES=""
+
 # @description Ensure permissions in CI environments
 if [ -n "$CI" ]; then
   if type sudo &> /dev/null; then
@@ -31,10 +35,10 @@ chmod +x .config/log
 
 # @description Acquire unique ID for this script
 if [ -z "$CI" ]; then
-  if type m5sum &> /dev/null; then
+  if type md5sum &> /dev/null; then
     FILE_HASH="$(md5sum "$0" | sed 's/\s.*$//')"
   else
-    FILE_HASH="$(date +%s -r "$0")"
+    FILE_HASH="$(date -r "$0" +%s)"
   fi
 else
   FILE_HASH="none"
@@ -132,7 +136,7 @@ function ensureRootPackageInstalled() {
 # @description If the user is running this script as root, then create a new user named
 # megabyte and restart the script with that user. This is required because Homebrew
 # can only be invoked by non-root users.
-if [ "$USER" == "root" ] && [ -z "$INIT_CWD" ] && type useradd &> /dev/null; then
+if [ -z "$NO_INSTALL_HOMEBREW" ] && [ "$USER" == "root" ] && [ -z "$INIT_CWD" ] && type useradd &> /dev/null; then
   # shellcheck disable=SC2016
   logger info 'Running as root - creating seperate user named `megabyte` to run script with'
   echo "megabyte ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -162,9 +166,9 @@ fi
 function ensureLocalPath() {
   if [[ "$OSTYPE" == 'darwin'* ]] || [[ "$OSTYPE" == 'linux'* ]]; then
     # shellcheck disable=SC2016
-    PATH_STRING='PATH="$HOME/.local/bin:$PATH"'
+    PATH_STRING='export PATH="$HOME/.local/bin:$PATH"'
     mkdir -p "$HOME/.local/bin"
-    if grep -L "$PATH_STRING" "$HOME/.profile" > /dev/null; then
+    if ! grep -L "$PATH_STRING" "$HOME/.profile" > /dev/null; then
       echo -e "${PATH_STRING}\n" >> "$HOME/.profile"
       logger info "Updated the PATH variable to include ~/.local/bin in $HOME/.profile"
     fi
@@ -271,7 +275,8 @@ function ensureTaskInstalled() {
       TASK_UPDATE_TIME="$(date +%s)"
       echo "$TASK_UPDATE_TIME" > "$HOME/.cache/megabyte/start.sh/bodega-update-check"
     fi
-    TIME_DIFF="$(($(date +%s) - "$TASK_UPDATE_TIME"))"
+    # shellcheck disable=SC2004
+    TIME_DIFF="$(($(date +%s) - $TASK_UPDATE_TIME))"
     # Only run if it has been at least 15 minutes since last attempt
     if [ "$TIME_DIFF" -gt 900 ] || [ "$TIME_DIFF" -lt 5 ]; then
       date +%s > "$HOME/.cache/megabyte/start.sh/bodega-update-check"
@@ -331,7 +336,7 @@ function installTask() {
   sha256 "$DOWNLOAD_DESTINATION" "$DOWNLOAD_SHA256" > /dev/null
   logger success "Validated checksum"
   mkdir -p "$TMP_DIR/task"
-  tar -xzvf "$DOWNLOAD_DESTINATION" -C "$TMP_DIR/task" > /dev/null
+  tar -xzf "$DOWNLOAD_DESTINATION" -C "$TMP_DIR/task" > /dev/null
   if type task &> /dev/null && [ -w "$(which task)" ]; then
     TARGET_BIN_DIR="."
     TARGET_DEST="$(which task)"
@@ -409,36 +414,41 @@ function sha256() {
 # @example
 #   ensureTaskfiles
 function ensureTaskfiles() {
-  # shellcheck disable=SC2030
-  task donothing || BOOTSTRAP_EXIT_CODE=$?
-  mkdir -p "$HOME/.cache/megabyte/start.sh"
-  if [ -f "$HOME/.cache/megabyte/start.sh/ensure-taskfiles" ]; then
-    TASK_UPDATE_TIME="$(cat "$HOME/.cache/megabyte/start.sh/ensure-taskfiles")"
-  else
-    TASK_UPDATE_TIME="$(date +%s)"
-    echo "$TASK_UPDATE_TIME" > "$HOME/.cache/megabyte/start.sh/ensure-taskfiles"
-  fi
-  TIME_DIFF="$(($(date +%s) - "$TASK_UPDATE_TIME"))"
-  # Only run if it has been at least 15 minutes since last attempt
-  if [ -n "$BOOTSTRAP_EXIT_CODE" ] || [ "$TIME_DIFF" -gt 900 ] || [ "$TIME_DIFF" -lt 5 ] || [ -n "$FORCE_TASKFILE_UPDATE" ]; then
-    logger info 'Grabbing latest Taskfiles by downloading shared-master.tar.gz'
-    # shellcheck disable=SC2031
-    date +%s > "$HOME/.cache/megabyte/start.sh/ensure-taskfiles"
-    if [ -d common/.config/taskfiles ]; then
-      if [[ "$OSTYPE" == 'darwin'* ]]; then
-        cp -rf common/.config/taskfiles/ .config/taskfiles
-      else
-        cp -rT common/.config/taskfiles/ .config/taskfiles
-      fi
+  if [ -z "$ENSURED_TASKFILES" ]; then
+    # shellcheck disable=SC2030
+    task donothing || BOOTSTRAP_EXIT_CODE=$?
+    mkdir -p "$HOME/.cache/megabyte/start.sh"
+    if [ -f "$HOME/.cache/megabyte/start.sh/ensure-taskfiles" ]; then
+      TASK_UPDATE_TIME="$(cat "$HOME/.cache/megabyte/start.sh/ensure-taskfiles")"
     else
-      curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/archive/master/shared-master.tar.gz > shared-master.tar.gz
-      tar -xzvf shared-master.tar.gz
-      rm shared-master.tar.gz
-      rm -rf .config/taskfiles
-      mv shared-master/common/.config/taskfiles .config/taskfiles
-      mv shared-master/common/.editorconfig .editorconfig
-      mv shared-master/common/.gitignore .gitignore
-      rm -rf shared-master
+      TASK_UPDATE_TIME="$(date +%s)"
+      echo "$TASK_UPDATE_TIME" > "$HOME/.cache/megabyte/start.sh/ensure-taskfiles"
+    fi
+    # shellcheck disable=SC2004
+    TIME_DIFF="$(($(date +%s) - $TASK_UPDATE_TIME))"
+    # Only run if it has been at least 15 minutes since last attempt
+    if [ -n "$BOOTSTRAP_EXIT_CODE" ] || [ "$TIME_DIFF" -gt 900 ] || [ "$TIME_DIFF" -lt 5 ] || [ -n "$FORCE_TASKFILE_UPDATE" ]; then
+      logger info 'Grabbing latest Taskfiles by downloading shared-master.tar.gz'
+      # shellcheck disable=SC2031
+      date +%s > "$HOME/.cache/megabyte/start.sh/ensure-taskfiles"
+      ENSURED_TASKFILES="true"
+      if [ -d common/.config/taskfiles ]; then
+        if [[ "$OSTYPE" == 'darwin'* ]]; then
+          cp -rf common/.config/taskfiles/ .config/taskfiles
+        else
+          cp -rT common/.config/taskfiles/ .config/taskfiles
+        fi
+      else
+        mkdir -p .config/taskfiles
+        curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/archive/master/shared-master.tar.gz > shared-master.tar.gz
+        tar -xzf shared-master.tar.gz > /dev/null
+        rm shared-master.tar.gz
+        rm -rf .config/taskfiles
+        mv shared-master/common/.config/taskfiles .config/taskfiles
+        mv shared-master/common/.editorconfig .editorconfig
+        mv shared-master/common/.gitignore .gitignore
+        rm -rf shared-master
+      fi
     fi
   fi
 }
@@ -476,8 +486,6 @@ ensureLocalPath
 if [[ "$OSTYPE" == 'darwin'* ]]; then
   if ! type curl &> /dev/null && type brew &> /dev/null; then
     brew install curl
-  else
-    logger error "Neither curl nor brew are installed. Install one of them manually and try again."
   fi
   if ! type git &> /dev/null; then
     # shellcheck disable=SC2016
@@ -492,7 +500,6 @@ elif [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYPE" == 'linux-musl'* ]]; then
     ensurePackageInstalled "gzip"
     ensurePackageInstalled "sudo"
     ensurePackageInstalled "jq"
-    ensurePackageInstalled "yq"
   fi
 fi
 
@@ -516,7 +523,20 @@ if [ -z "$NO_INSTALL_HOMEBREW" ]; then
         # shellcheck disable=SC2016
         brew install poetry || logger info 'There may have been an issue installing `poetry` with `brew`'
       fi
+      if ! type yq &> /dev/null; then
+        # shellcheck disable=SC2016
+        brew install yq || logger info 'There may have been an issue installing `yq` with `brew`'
+      fi
     fi
+  fi
+fi
+
+# @description Second attempt to install yq if snap is on system but the Homebrew install was skipped
+if ! type yq &> /dev/null && type snap &> /dev/null; then
+  if type sudo &> /dev/null; then
+    sudo snap install yq
+  else
+    snap install yq
   fi
 fi
 
@@ -531,19 +551,31 @@ if [ -d .git ] && type git &> /dev/null; then
   if [ -f .cache/start.sh/git-pull-time ]; then
     GIT_PULL_TIME="$(cat .cache/start.sh/git-pull-time)"
   else
-    GIT_PULL_TIME="$(date +%s)"
+    GIT_PULL_TIME=$(date +%s)
     echo "$GIT_PULL_TIME" > .cache/start.sh/git-pull-time
   fi
-  TIME_DIFF="$(($(date +%s) - "$GIT_PULL_TIME"))"
+  # shellcheck disable=SC2004
+  TIME_DIFF="$(($(date +%s) - $GIT_PULL_TIME))"
   # Only run if it has been at least 15 minutes since last attempt
   if [ "$TIME_DIFF" -gt 900 ] || [ "$TIME_DIFF" -lt 5 ]; then
     date +%s > .cache/start.sh/git-pull-time
-    HTTPS_VERSION="$(git remote get-url origin | sed 's/git@gitlab.com:/https:\/\/gitlab.com\//')"
-    logger info 'Current branch is `'"$(git rev-parse --abbrev-ref HEAD)"'`'
-    if [ "$(git rev-parse --abbrev-ref HEAD)" == 'synchronize' ]; then
-      git reset --hard master
+    git fetch origin
+    GIT_POS="$(git rev-parse --abbrev-ref HEAD)"
+    logger info 'Current branch is `'"$GIT_POS"'`'
+    if [ "$GIT_POS" == 'synchronize' ] || [ "$CI_COMMIT_REF_NAME" == 'synchronize' ]; then
+      git reset --hard origin/master
+      git push --force origin synchronize || FORCE_SYNC_ERR=$?
+      if [ -n "$FORCE_SYNC_ERR" ] && type task &> /dev/null; then
+        NO_GITLAB_SYNCHRONIZE=true task ci:synchronize
+      else
+        DELAYED_CI_SYNC=true
+      fi
+    elif [ "$GIT_POS" == 'HEAD' ]; then
+      if [ -n "$GITLAB_CI" ]; then
+        printenv
+      fi
     fi
-    git pull "$HTTPS_VERSION" master --ff-only
+    git pull --force origin master --ff-only || true
     ROOT_DIR="$PWD"
     if ls .modules/*/ > /dev/null 2>&1; then
       for SUBMODULE_PATH in .modules/*/; do
@@ -566,6 +598,12 @@ ensureTaskInstalled
 # @description Ensures Taskfiles are up-to-date
 logger info 'Ensuring Taskfile.yml files are all in good standing'
 ensureTaskfiles
+
+# @description Try synchronizing again (in case Task was not available yet)
+if [ "$DELAYED_CI_SYNC" == 'true' ]; then
+  logger info 'Attempting to synchronize CI..'
+  task ci:synchronize
+fi
 
 # @description Run the start logic, if appropriate
 if [ -z "$CI" ] && [ -z "$START" ] && [ -z "$INIT_CWD" ]; then

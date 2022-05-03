@@ -8,7 +8,7 @@
   "homepage": "https://megabyte.space",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ProfessorManhattan/codeclimate-editorconfig.git"
+    "url": "git+https://github.com/megabyte-labs/codeclimate-editorconfig.git"
   },
   "bugs": {
     "email": "help@megabyte.space",
@@ -27,13 +27,13 @@
     "lint": "bash start.sh && task lint",
     "preload": "bash start.sh && task preload",
     "prepare": "bash start.sh && (test -f Taskfile.yml && task npm:prepare) || true",
-    "prepublishOnly": "test -z $SKIP_PREPUB && bash start.sh && task npm:bundle:create || true",
     "release": "bash start.sh && task publish:semantic-release",
     "repair": "bash <(curl -sS https://install.doctor/repair)",
     "start": "test -z $SKIP_NPM_START && bash start.sh || true",
     "test": "bash start.sh && task docker:test",
     "unpack": "bash start.sh && task npm:bundle:unpack",
-    "update": "bash start.sh && task update"
+    "update": "bash start.sh && task update",
+    "vscode": "bash start.sh && task vscode"
   },
   "config": {
     "commitizen": {
@@ -71,8 +71,11 @@
     "node": ">=14.18.0"
   },
   "publishConfig": {
+    "@gitlab:registry": "https://gitlab.com/api/v4/projects/32219661/packages/npm/",
     "@megabyte:registry": "https://gitlab.com/api/v4/projects/32219661/packages/npm/",
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/",
+    "tag": "edge"
   },
   "blueprint": {
     "codeClimateLanguages": [
@@ -97,7 +100,7 @@
     "name": "EditorConfig",
     "overview": "This project is the home of an EditorConfig [CodeClimate](https://codeclimate.com/) engine. EditorConfig is a widely-adopted standard for defining the basic requirements for all files in a project. It defines features like how many spaces a tab should be. It was built to integrate EditorConfig-linter results into the GitLab merge request web UI. This project was adapted from another [codeclimate-editorconfig](https://github.com/ahmadnassri/codeclimate-editorconfig) project.\n\n**NOTE:** In its current state, you cannot lint individual files.",
     "repository": {
-      "github": "https://github.com/ProfessorManhattan/codeclimate-editorconfig",
+      "github": "https://github.com/megabyte-labs/codeclimate-editorconfig",
       "gitlab": "https://gitlab.com/megabyte-labs/docker/codeclimate/editorconfig"
     },
     "slug": "editorconfig",
@@ -141,6 +144,10 @@
       "url": "https://www.patreon.com/ProfessorManhattan"
     }
   ],
+  "jscpd": {
+    "gitignore": true,
+    "threshold": 0.1
+  },
   "lint-staged": {
     "(Brewfile|composer.lock|Gemfile|Gopkg.lock|Pipfile.lock)": [
       "task fix:prettier --"
@@ -203,6 +210,9 @@
       "task fix:prettier --",
       "task lint:vagrant"
     ],
+    "logo.(gif|jpg|jpeg|webp)": [
+      "task image:convert:logo --"
+    ],
     "logo.png": [
       "task image:resize -- 200 200",
       "task image:compress --"
@@ -238,7 +248,8 @@
     "peerDependencyRules": {
       "ignoreMissing": [
         "eslint",
-        "prettier"
+        "prettier",
+        "puppeteer"
       ]
     }
   },
@@ -250,10 +261,6 @@
       "next",
       {
         "name": "beta",
-        "prerelease": true
-      },
-      {
-        "name": "alpha",
         "prerelease": true
       }
     ],
