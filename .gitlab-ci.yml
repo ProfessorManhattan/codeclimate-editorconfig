@@ -2,7 +2,3 @@
 include:
   - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/common.gitlab-ci.yml
   - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/publish/semantic-release.gitlab-ci.yml
-integration:codeclimate:
-  image: megabytelabs/codeclimate:slim
-  script:
-    - task lint:codeclimate
